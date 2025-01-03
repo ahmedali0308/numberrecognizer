@@ -1,0 +1,8 @@
+{
+    "editor.codeActionsOnSave": {},
+    "makefile.configureOnOpen": true,
+    "files.associations": {
+        "*.lua": "lua",
+        "ostream": "cpp"
+    }
+}

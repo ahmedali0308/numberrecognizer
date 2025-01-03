@@ -6,26 +6,19 @@
 #include <time.h>
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 900
-#define SCREEN_HEIGHT 600
+#include "./src/util/vector2.h"
+
+#define SCREEN_WIDTH 560
+#define SCREEN_HEIGHT 660
+
+#define DATA_SCREEN_SIZE 28
 
 #define TOP_LIMIT 100
 
 #define COLOR_BLACK (colorRGB){0,0,0,255}
 #define COLOR_WHITE (colorRGB){255,255,255,255}
 
-#define BRUSHSIZE 5
-
-class vec2d
-{
-    public:
-        int x;
-        int y;
-        vec2d(int _x, int _y) {
-            x = _x;
-            y = _y;
-        }
-};
+#define BRUSHSIZE 25
 
 struct colorRGB
 {
@@ -36,13 +29,18 @@ struct colorRGB
 };
 typedef struct colorRGB colorRGB;
 
-void drawPixel(vec2d position, colorRGB color, SDL_Renderer* renderer)
+int pixelData[SCREEN_WIDTH][SCREEN_HEIGHT-TOP_LIMIT] = {0};
+float densityPixelData[DATA_SCREEN_SIZE][DATA_SCREEN_SIZE] = {0};
+const int pixelSizeByDataSize = SCREEN_WIDTH/DATA_SCREEN_SIZE;
+
+void drawPixel(vector2 position, colorRGB color, SDL_Renderer* renderer)
 {
     // Check if the pixel is outside of the screen
     // If it is, dont bother rendering it
     if ((position.x < 0 || position.x > SCREEN_WIDTH) || (position.y < TOP_LIMIT || position.y > SCREEN_HEIGHT))
         return;
 
+    pixelData[position.x][position.y-TOP_LIMIT] = 1;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDrawPoint(renderer, position.x, position.y);
     
@@ -50,7 +48,7 @@ void drawPixel(vec2d position, colorRGB color, SDL_Renderer* renderer)
 
 
 // this could also be done with SDL_RenderDrawLine(), I wanted to try making this myself for more control
-void drawLine(vec2d position0, vec2d position1, colorRGB color, SDL_Renderer* renderer)
+void drawLine(vector2 position0, vector2 position1, colorRGB color, SDL_Renderer* renderer)
 {
     // draw a line using bresenham's line algorithm from position0 to position1
     // Read here for more info on the algorithm:
@@ -69,7 +67,7 @@ void drawLine(vec2d position0, vec2d position1, colorRGB color, SDL_Renderer* re
     
     while (true)
     {
-        drawPixel(vec2d(x0,y0),color,renderer);
+        drawPixel(vector2(x0,y0),color,renderer);
         if (x0 == x1 && y0 == y1) break;
         int e2 = 2 * error;
         if (e2 >= dy)
@@ -85,7 +83,7 @@ void drawLine(vec2d position0, vec2d position1, colorRGB color, SDL_Renderer* re
     }
 }
 
-void drawCircle(vec2d position, int radius, colorRGB color, SDL_Renderer* renderer)
+void drawCircle(vector2 position, int radius, colorRGB color, SDL_Renderer* renderer)
 {
     // to save on performance:
     // If the radius is 1 or smaller, dont bother calculating the circle and just draw a Pixel
@@ -112,10 +110,10 @@ void drawCircle(vec2d position, int radius, colorRGB color, SDL_Renderer* render
 
     while (x >= y)
     {
-        drawLine(vec2d(x0 - y, y0 - x), vec2d(x0 + y, y0 - x), color, renderer); // blue to green
-        drawLine(vec2d(x0 - x, y0 - y), vec2d(x0 + x, y0 - y), color, renderer); // purple to yellow
-        drawLine(vec2d(x0 - x, y0 + y), vec2d(x0 + x, y0 + y), color, renderer); // pink to orange
-        drawLine(vec2d(x0 - y, y0 + x), vec2d(x0 + y, y0 + x), color, renderer); // black to red
+        drawLine(vector2(x0 - y, y0 - x), vector2(x0 + y, y0 - x), color, renderer); // blue to green
+        drawLine(vector2(x0 - x, y0 - y), vector2(x0 + x, y0 - y), color, renderer); // purple to yellow
+        drawLine(vector2(x0 - x, y0 + y), vector2(x0 + x, y0 + y), color, renderer); // pink to orange
+        drawLine(vector2(x0 - y, y0 + x), vector2(x0 + y, y0 + x), color, renderer); // black to red
 
         if (err <= 0)
         {
@@ -160,7 +158,59 @@ void clearScreen(SDL_Renderer* renderer)
     SDL_SetRenderDrawColor(renderer, COLOR_BLACK.r, COLOR_BLACK.g, COLOR_BLACK.b, COLOR_BLACK.a);
     SDL_RenderClear(renderer);
     writeText((char*)"Recognized number: 0", 70, renderer);
-    drawLine(vec2d(0,TOP_LIMIT),vec2d(SCREEN_WIDTH,TOP_LIMIT),COLOR_WHITE,renderer);
+    drawLine(vector2(0,TOP_LIMIT),vector2(SCREEN_WIDTH,TOP_LIMIT),COLOR_WHITE,renderer);
+    for (int x = 0; x < SCREEN_WIDTH; x++){
+        for (int y = 0; y < SCREEN_HEIGHT-TOP_LIMIT; y++){
+            pixelData[x][y] = 0;
+        }
+    }
+    for (int x = 0; x < DATA_SCREEN_SIZE; x++){
+        for (int y = 0; y < DATA_SCREEN_SIZE; y++){
+            densityPixelData[x][y] = 0;
+        }
+    }
+}
+
+int getPixel(vector2 position){
+    if ((position.x < 0 || position.x > SCREEN_WIDTH) || (position.y < 0 || position.y > SCREEN_HEIGHT))
+        return 0;
+    return pixelData[position.x][position.y];
+}
+
+float getPixelInDataSize(vector2 position){
+    if ((position.x < 0 || position.x > SCREEN_WIDTH) || (position.y < 0 || position.y > SCREEN_HEIGHT))
+        return 0;
+    // get quadrant limits
+    if (position.x == SCREEN_WIDTH)
+        position.x -= 1;
+    if (position.y == SCREEN_HEIGHT-TOP_LIMIT)
+        position.y -= 1;
+    int x1 = (position.x - (position.x%pixelSizeByDataSize));
+    int y1 = (position.y - (position.y%pixelSizeByDataSize));
+    int x2 = x1 + pixelSizeByDataSize;
+    int y2 = y1 + pixelSizeByDataSize;
+
+    float median = 0.0f;
+    for (int x = x1; x < x2; x++){
+        for (int y = y1; y < y2; y++){
+            median = median + (float)(getPixel(vector2(x,y)));
+        }
+    }
+    return median/pixelSizeByDataSize/pixelSizeByDataSize;
+}
+
+void setDensityData(){
+    for (int x = 0; x < DATA_SCREEN_SIZE; x++){
+        for (int y = 0; y < DATA_SCREEN_SIZE; y++){
+            densityPixelData[x][y] = getPixelInDataSize(vector2((int)(x*pixelSizeByDataSize),(int)(y*pixelSizeByDataSize)));
+        }
+    }
+}
+
+vector2 getPixelQuadrant(vector2 position){
+    int x = (position.x - (position.x%pixelSizeByDataSize))/pixelSizeByDataSize;
+    int y = (position.y - (position.y%pixelSizeByDataSize))/pixelSizeByDataSize;
+    return vector2(x,y);
 }
 
 int main(int argc, char* args[])
@@ -227,7 +277,7 @@ int main(int argc, char* args[])
         if (mouseDown == 1)
         {
             SDL_GetMouseState(&xMouse, &yMouse);
-            drawCircle(vec2d(xMouse, yMouse), BRUSHSIZE, COLOR_WHITE, renderer);
+            drawCircle(vector2(xMouse, yMouse), BRUSHSIZE, COLOR_WHITE, renderer);
 
             // TEST
             char test[25];
@@ -235,7 +285,18 @@ int main(int argc, char* args[])
             writeText(test, 70, renderer);
         }
         else if (mouseDown == 3)
-        {
+        {   
+            setDensityData();
+            for (int x = 0; x < SCREEN_WIDTH; x++){
+                for (int y = 1; y < SCREEN_HEIGHT-TOP_LIMIT; y++){
+                    vector2 quadrantPos = getPixelQuadrant(vector2(x,y-1));
+                    float pixelDensity = densityPixelData[quadrantPos.x][quadrantPos.y];
+                    int colorValue = (int)(255*pixelDensity);
+                    drawPixel(vector2(x,y+TOP_LIMIT),(colorRGB){colorValue,colorValue,colorValue},renderer);
+                }
+            }
+            SDL_RenderPresent(renderer);
+            SDL_Delay(1000);
             // Erase previous frame
             clearScreen(renderer);
         }
