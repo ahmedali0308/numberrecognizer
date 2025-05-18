@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include "./lib/include/numberdisplay.h"
 #include "./lib/include/grid.h"
 
 #include <iostream>
@@ -57,6 +58,10 @@ int main()
     Grid grid {(int)(drawingArea.getSize().x),(int)(drawingArea.getSize().y),
         (int)(drawingArea.getPosition().x),(int)(drawingArea.getPosition().y), &window , sf::Color(255,255,255,0)};
 
+    // Create the numberDisplay object which adds the numbers on the right hand side showing the propabilities
+    Numberdisplay numberdisplay { (int)(display_width), (int)(window_height), (int)(drawingarea_width + drawingarea_offset*2) ,
+        (int)0, &window, font, font_color };
+
     // Main loop
     while (window.isOpen())
     {
@@ -98,6 +103,7 @@ int main()
         window.draw(drawText);
         window.draw(eraseText);
         grid.drawGrid();
+        //numberdisplay.drawNumbers();
 
         // display new frame
         window.display();
