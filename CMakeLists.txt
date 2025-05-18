@@ -14,15 +14,16 @@ FetchContent_MakeAvailable(SFML)
 
 include_directories(src/lib/include)
 file(GLOB SOURCES "src/lib/*.cpp")
+file(GLOB INCLUDES "src/lib/*.h")
 
 set(HIDE_TERMINAL OFF)
 # NOTE:  Setting this to 'ON' prevents printing to the terminal! 
 #        when Debugging, set to 'OFF'
 
 if(HIDE_TERMINAL)
-    add_executable(main WIN32 src/main.cpp ${SOURCES})
+    add_executable(main WIN32 src/main.cpp ${SOURCES} ${INCLUDES})
 else()
-    add_executable(main src/main.cpp ${SOURCES})
+    add_executable(main src/main.cpp ${SOURCES} ${INCLUDES})
 endif()
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics)
