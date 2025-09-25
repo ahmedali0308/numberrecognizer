@@ -64,12 +64,17 @@ void Grid::colorIn(sf::Vector2i gridPos, bool white){
         }
         return;
     }
-    gridRectangles[gridPos.x][gridPos.y].setFillColor(sf::Color(255,255,255,0));
-    for (int i = -1; i<=1; i++){
-        if (i==0) continue;
-        if (((gridPos.x+i)>=MNIST_PixelData) || (gridPos.x+i) < 0) continue;
-        if (((gridPos.y+i)>=MNIST_PixelData) || (gridPos.y+i) < 0) continue;
-        gridRectangles[gridPos.x+i][gridPos.y].setFillColor(sf::Color(255,255,255,0));
-        gridRectangles[gridPos.x][gridPos.y+i].setFillColor(sf::Color(255,255,255,0));
+    for (int i = 0; i<MNIST_PixelData; i++){
+        for (int j = 0; j<MNIST_PixelData; j++){
+            gridRectangles[i][j].setFillColor(sf::Color(255,255,255,0));
+        }
     }
+    // gridRectangles[gridPos.x][gridPos.y].setFillColor(sf::Color(255,255,255,0));
+    // for (int i = -1; i<=1; i++){
+    //     if (i==0) continue;
+    //     if (((gridPos.x+i)>=MNIST_PixelData) || (gridPos.x+i) < 0) continue;
+    //     if (((gridPos.y+i)>=MNIST_PixelData) || (gridPos.y+i) < 0) continue;
+    //     gridRectangles[gridPos.x+i][gridPos.y].setFillColor(sf::Color(255,255,255,0));
+    //     gridRectangles[gridPos.x][gridPos.y+i].setFillColor(sf::Color(255,255,255,0));
+    // }
 }
