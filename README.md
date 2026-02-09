@@ -235,10 +235,6 @@ The project automatically downloads SFML 3.0.1. If download fails:
 - SFML 3.0.1 has some API changes from 2.x - ensure you're using the correct version
 - Windows: Font paths may need adjustment if not using the standard project structure
 
-## License
-
-[Specify your license here]
-
 ## Author
 
 Ahmed Ali 2025
