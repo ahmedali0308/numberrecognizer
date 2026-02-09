@@ -5,8 +5,6 @@
 #include <string>
 #include <iostream>
 
-#include <bits/stdc++.h>
-
 const unsigned int window_width = 500u;
 const unsigned int window_height = 700u;
 
@@ -15,7 +13,7 @@ const sf::Color buttonColor = sf::Color(10,80,10);
 std::vector<std::tuple<sf::RectangleShape, sf::Text, void(*)(sf::RenderWindow*)>> buttons;
 
 std::tuple<sf::RectangleShape, sf::Text, void(*)(sf::RenderWindow*)> createButton(sf::Vector2f size, sf::Vector2f position, std::string text, 
-                                                    sf::Color background_color, sf::Color font_color, int fontSize, sf::Font font, void(*pointerfunc)(sf::RenderWindow*)){
+                                                    sf::Color background_color, sf::Color font_color, int fontSize, sf::Font& font, void(*pointerfunc)(sf::RenderWindow*)){
     // Rectangle
     sf::RectangleShape trainButton(size);
     trainButton.setPosition(position);
@@ -33,7 +31,7 @@ std::tuple<sf::RectangleShape, sf::Text, void(*)(sf::RenderWindow*)> createButto
     return button;
 }
 
-void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color, sf::Font font){
+void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color, sf::Font& font){
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({window_width, window_height}), "Number recognizer AI Trainer", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(144);
 

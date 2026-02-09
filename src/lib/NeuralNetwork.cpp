@@ -1,5 +1,6 @@
 #include <../include/NeuralNetwork.h>
 
-NeuralNetwork::NeuralNetwork(){
-    
+NeuralNetwork::NeuralNetwork(Matrix trainingData) 
+    : trainingData(trainingData) {
+    // Konstruktor-Body (kann leer bleiben)
 }

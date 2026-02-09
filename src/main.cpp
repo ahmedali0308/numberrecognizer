@@ -14,7 +14,7 @@ const unsigned int display_width = 500u;
 const unsigned int window_width = drawingarea_width + drawingarea_offset*2 + display_width;
 const unsigned int window_height = 1000u;
 
- sf::Font font("../../fonts/Roboto.ttf");
+ sf::Font font("../../../fonts/Roboto.ttf");
 const sf::Color font_color = sf::Color(150,150,150);
 
 const sf::Color background_color = sf::Color(30,30,40);
@@ -29,13 +29,13 @@ bool mouseInDrawingArea(sf::Vector2i mousePosition)
 
 int main()
 {
-    Matrix test(2,4);
-    test.rand();
-    test.printshape();
-    test.printdata();
-    test.T();
-    test.printshape();
-    test.printdata();
+    //Matrix test(2,4);
+    //test.rand();
+    //test.printshape();
+    //test.printdata();
+    //test.T();
+    //test.printshape();
+    //test.printdata();
 
     // Train AI using extra Window with Settings
     Render_AI__Trainer_Window(background_color, font_color, font);
