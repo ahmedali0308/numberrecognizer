@@ -12,6 +12,14 @@ A neural network-based handwritten digit recognition application built with C++ 
 
 Upon opening the executable, a window pops up where the user can freely draw onto a drawing area. The input (pixels on the board) are scaled down to an area of 28×28 pixels and then fed into a neural network as the "first layer". Having been trained beforehand to find the right weights and biases, it uses this data to output a set of probabilities for numbers 0 to 9.
 
+### Demonstration
+
+
+
+https://github.com/user-attachments/assets/6733008d-bcac-412a-9c3d-ecb81f0ac501
+
+
+
 ## Implementation
 
 This project features a **custom neural network implementation** built from scratch in C++. Unlike many machine learning projects that rely on frameworks like TensorFlow or PyTorch, all core components are hand-written:
@@ -159,11 +167,6 @@ cmake --build .
 2. Launch the AI training window
 3. Monitor training progress through the accuracy graph
 4. Trained weights and biases are automatically applied for recognition
-
-### Demonstration
-
-/
-
 
 ## Author
 
