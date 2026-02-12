@@ -145,42 +145,18 @@ cmake --build .
 ./bin/main
 ```
 
-## Project Structure
-
-```
-numberrecognizer/
-├── CMakeLists.txt          # CMake configuration
-├── fonts/
-│   └── Roboto.ttf          # Font file for UI
-├── src/
-│   ├── main.cpp            # Main application entry point
-│   └── lib/
-│       ├── include/        # Header files
-│       │   ├── grid.h
-│       │   ├── numberDisplay.h
-│       │   ├── AI_Trainer.h
-│       │   ├── NeuralNetwork.h
-│       │   └── matrix.h
-│       ├── grid.cpp
-│       ├── numberDisplay.cpp
-│       ├── AI_Trainer.cpp
-│       ├── NeuralNetwork.cpp
-│       └── matrix.cpp
-└── build/                  # Build output (generated)
-```
-
 ## Usage
 
 ### Drawing and Recognition
 
 1. **Drawing Mode**: Use left mouse button to draw digits on the canvas
-2. **Erasing**: Use right mouse button to erase portions of your drawing
+2. **Erasing**: Use right mouse button to erase your drawing
 3. **Recognition**: The application displays real-time confidence scores for each digit (0-9)
 
 ### Training the Neural Network
 
-1. Launch the AI training window
-2. Configure training parameters
+1. Configure Settings 
+2. Launch the AI training window
 3. Monitor training progress through the accuracy graph
 4. Trained weights and biases are automatically applied for recognition
 
@@ -188,52 +164,6 @@ numberrecognizer/
 
 /
 
-## Development
-
-### VS Code Setup (Recommended)
-
-1. Install extensions:
-   - C/C++ (Microsoft)
-   - CMake Tools (Microsoft)
-
-2. Open the project folder in VS Code
-
-3. Select a kit (compiler):
-   - Press `Ctrl+Shift+P`
-   - Type "CMake: Select a Kit"
-   - Choose your compiler (e.g., "Visual Studio Community 2022 Release - amd64")
-
-4. Build:
-   - Press `F7` or click the "Build" button in the status bar
-
-5. Debug:
-   - Press `F5` to start debugging
-
-## Troubleshooting
-
-### Font Loading Error
-
-If you see "Failed to load font", ensure:
-- The `fonts/` directory exists in the project root
-- `Roboto.ttf` is present in the `fonts/` directory
-- The font is copied to the build directory (handled automatically by CMake)
-
-### CMake Configuration Errors
-
-If CMake fails to find the compiler:
-- **Windows**: Make sure you're using the correct generator (`-G` flag)
-- **Linux/macOS**: Install build-essential or equivalent packages
-
-### SFML-related Errors
-
-The project automatically downloads SFML 3.0.1. If download fails:
-- Check your internet connection
-- Clear the CMake cache: `rm -rf build/` and rebuild
-
-## Known Issues
-
-- SFML 3.0.1 has some API changes from 2.x - ensure you're using the correct version
-- Windows: Font paths may need adjustment if not using the standard project structure
 
 ## Author
 

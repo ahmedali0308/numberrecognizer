@@ -1,17 +1,27 @@
 #include <../include/AI_Trainer.h>
 #include <SFML/Graphics.hpp>
-#include <tuple>
-#include <vector>
-#include <string>
-#include <iostream>
 
 const unsigned int window_width = 500u;
-const unsigned int window_height = 700u;
+const unsigned int window_height = 150u;
+
+// Default Settings for neural network
+TrainingConfig config = {
+    2, // hiddenLayers
+    100, // Epochs
+    0.1f, // learningRate
+    20, // neuronsPerLayer
+    0 // activationFunc, 0 sig; 1 relu
+};
+
+NeuralNetwork nn(config);
 
 const sf::Color buttonColor = sf::Color(10,80,10);
 
 std::vector<std::tuple<sf::RectangleShape, sf::Text, void(*)(sf::RenderWindow*)>> buttons;
 
+// Originally I wanted to make multiple buttons for the config,
+// ended up just using a file instead of buttons but I will
+// keep this here incase I ever need it again
 std::tuple<sf::RectangleShape, sf::Text, void(*)(sf::RenderWindow*)> createButton(sf::Vector2f size, sf::Vector2f position, std::string text, 
                                                     sf::Color background_color, sf::Color font_color, int fontSize, sf::Font& font, void(*pointerfunc)(sf::RenderWindow*)){
     // Rectangle
@@ -31,9 +41,14 @@ std::tuple<sf::RectangleShape, sf::Text, void(*)(sf::RenderWindow*)> createButto
     return button;
 }
 
-void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color, sf::Font& font){
+NeuralNetwork Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color, sf::Font& font){
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({window_width, window_height}), "Number recognizer AI Trainer", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(144);
+
+    MNISTLoader loader;
+    std::vector<MNISTSample> trainData;
+    std::cout << "Loading MNIST-Data..." << std::endl;
+    trainData = loader.loadFromCSV("../../../data/mnist_train.csv", 1000);
 
     createButton(
         {window_width-60u, 100u}, // Size
@@ -53,7 +68,6 @@ void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color,
 
         while (const std::optional event = window.pollEvent())
         {
-            // If window close button is pressed, close the window
             if (event->is<sf::Event::Closed>())
             {
                 window.close();
@@ -106,14 +120,14 @@ void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color,
     yAxisLabel.setFillColor(sf::Color(100,100,100));
     yAxisLabel.setPosition({280u,615u});
 
-    std::vector<float> accuracyData = {0.f, 1.0f};
+    std::vector<float> accuracyData = {};
+    float count = 1;
 
     while (window.isOpen())
     {
 
         while (const std::optional event = window.pollEvent())
         {
-            // If window close button is pressed, close the window
             if (event->is<sf::Event::Closed>())
             {
                 window.close();
@@ -125,6 +139,9 @@ void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color,
         window.draw(xAxisLabel);
         window.draw(yAxis);
         window.draw(yAxisLabel);
+
+        float currentAccuracy = nn.train_one_epoch(trainData);
+        accuracyData.push_back(currentAccuracy);
 
         // DRAW GRAPH LINE USING DATA
         // draw line from i to (i + 1), skip n-th element
@@ -143,4 +160,5 @@ void Render_AI__Trainer_Window(sf::Color background_color, sf::Color font_color,
 
         window.display();
     }
-}
+    return nn;
+};

@@ -29,16 +29,9 @@ bool mouseInDrawingArea(sf::Vector2i mousePosition)
 
 int main()
 {
-    //Matrix test(2,4);
-    //test.rand();
-    //test.printshape();
-    //test.printdata();
-    //test.T();
-    //test.printshape();
-    //test.printdata();
 
-    // Train AI using extra Window with Settings
-    Render_AI__Trainer_Window(background_color, font_color, font);
+    // Train AI
+    NeuralNetwork nn = Render_AI__Trainer_Window(background_color, font_color, font);
 
     sf::RenderWindow window = sf::RenderWindow(sf::VideoMode({window_width, window_height}), "Number recognizer Project", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(144);
@@ -60,14 +53,9 @@ int main()
     eraseText.setString("Erase: Right mouse button");
     eraseText.setCharacterSize(28);
     eraseText.setFillColor(font_color);
-
-    // Make eraseText rightbound to the right side of the drawingArea
-    // this is encased in brackets to ensure "eraseTextRect" only stays
-    // within this bound for no wasted memory
-    {
-        sf::FloatRect eraseTextRect = eraseText.getLocalBounds();
-        eraseText.setPosition({drawingarea_width+drawingarea_offset-eraseTextRect.size.x, window_height - drawingarea_offset});
-    }
+    
+    sf::FloatRect eraseTextRect = eraseText.getLocalBounds();
+    eraseText.setPosition({drawingarea_width+drawingarea_offset-eraseTextRect.size.x, window_height - drawingarea_offset});
 
     // Creator Text
     sf::Text createText(font);
@@ -75,13 +63,10 @@ int main()
     createText.setCharacterSize(18);
     createText.setFillColor(font_color);
 
-    // Make createText rightbound to the right side of the drawingArea
-    // this is encased in brackets to ensure "createTextRect" only stays
-    // within this bound for no wasted memory
-    {
-        sf::FloatRect createTextRect = createText.getLocalBounds();
-        createText.setPosition({window_width-drawingarea_offset/2-createTextRect.size.x, window_height - drawingarea_offset/2});
-    }
+    
+    sf::FloatRect createTextRect = createText.getLocalBounds();
+    createText.setPosition({window_width-drawingarea_offset/2-createTextRect.size.x, window_height - drawingarea_offset/2});
+    
 
     // Create grid object which creates a 28x28 grid of interactive rectangles
     Grid grid {(int)(drawingArea.getSize().x),(int)(drawingArea.getSize().y),
@@ -92,12 +77,12 @@ int main()
         (int)drawingarea_offset, &window, &font, font_color};
     //memberText.setFont(font);
     // Main loop
+
     while (window.isOpen())
     {
 
         while (const std::optional event = window.pollEvent())
         {
-            // If window close button is pressed, close the window
             if (event->is<sf::Event::Closed>())
             {
                 window.close();
@@ -113,7 +98,16 @@ int main()
                     if (mouseInDrawingArea(sf::Mouse::getPosition(window))){
                         sf::Vector2i gridPos = grid.rectangleAtPosition(sf::Mouse::getPosition(window));
                         grid.colorIn(gridPos,true);
-                        numberdisplay.load((float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100);
+                        //numberdisplay.load((float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100,(float)(rand()%10000)/100);
+                        
+                        Matrix input = grid.getImage(); 
+            
+                        std::vector<float> probs = nn.predict(input);
+
+                        numberdisplay.load(
+                            probs[0], probs[1], probs[2], probs[3], probs[4],
+                            probs[5], probs[6], probs[7], probs[8], probs[9]
+                        );
                     }
                 }
                 // Is the right mouse button down? -> Erase
@@ -123,14 +117,13 @@ int main()
                 if (mouseInDrawingArea(sf::Mouse::getPosition(window))){
                     sf::Vector2i gridPos = grid.rectangleAtPosition(sf::Mouse::getPosition(window));
                     grid.colorIn(gridPos,false);
+                    numberdisplay.load(0,0,0,0,0,0,0,0,0,0);
                 }
             }
         }
 
-        // get rid of old frame
         window.clear(background_color);
 
-        // Draw everything here, prepare new frame
         window.draw(drawingArea);
         window.draw(drawText);
         window.draw(eraseText);
@@ -138,9 +131,6 @@ int main()
         grid.drawGrid();
         numberdisplay.drawNumbers();
 
-        //numberdisplay.drawNumbers();
-
-        // display new frame
         window.display();
     }
 }

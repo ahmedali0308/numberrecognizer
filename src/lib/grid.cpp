@@ -31,6 +31,17 @@ float** Grid::getGridValues(){
     return gridValues;
 }
 
+Matrix Grid::getImage(){
+    Matrix image(784, 1);
+    for (int i = 0; i < MNIST_PixelData; i++){
+        for (int j = 0; j < MNIST_PixelData; j++){
+            float brightness = gridRectangles[i][j].getFillColor().a / 255.0f;  // Normalisieren!
+            image.set(j * MNIST_PixelData + i, 0, brightness);
+        }
+    }
+    return image;
+}
+
 void Grid::drawGrid(){
     for (int i = 0; i<MNIST_PixelData; i++){
         for (int j = 0; j<MNIST_PixelData; j++){
